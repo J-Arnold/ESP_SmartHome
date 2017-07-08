@@ -338,7 +338,21 @@ void Root_handle() {
 #ifdef VEML6070_1_active
   else if (WebSideArgumentRead == VEML6070_1_UV_text) Text = VEML6070_1_UV_handle(VEML6070_1_UV_text);
 #endif
-  else { Text = Root_Text(); }
+  else { 
+    Text = Root_Text(); 
+    
+    Text = Text + "<BR><a href=\"http://";
+    Text = Text + WiFi.localIP().toString();
+    Text = Text + "/info\"><button>info</button></a>";
+
+    Text = Text + "<a href=\"http://";
+    Text = Text + WiFi.localIP().toString();
+    Text = Text + "/ping\"><button>ping</button></a>";
+
+    Text = Text + "<a href=\"http://";
+    Text = Text + WiFi.localIP().toString();
+    Text = Text + "/time\"><button>time</button></a>";
+  }
 #ifdef Serial_on
   Serial.println(Text);
 #endif
@@ -371,9 +385,10 @@ void Info_handle() {
 void Ping_handle() {
   String WebSide = "";
   String Text = "Ping OK";
-#ifdef Serial_on
-  Serial.println(Text);
-#endif
+
+  Text = Text + "<BR><BR><a href=\"http://";
+  Text = Text + WiFi.localIP().toString();
+  Text = Text + "/\"><button>Back</button></a>";
   
 #ifdef Serial_on
   Serial.println(Text);
@@ -392,9 +407,9 @@ void Time_handle() {
   Data = milli2time(millis());
   Text = "UPTIME = " + Data;
   
-#ifdef Serial_on
-  Serial.println(Text);
-#endif
+  Text = Text + "<BR><BR><a href=\"http://";
+  Text = Text + WiFi.localIP().toString();
+  Text = Text + "/\"><button>Back</button></a>";
   
 #ifdef Serial_on
   Serial.println(Text);
@@ -421,50 +436,3 @@ void handleNotFound(){
   Server_Header();
   server.send(404, WebSideType, message);
 }
-
-/*
-String MCP9808_1_TEMP_handle() {
-  String Text = "";
-  String Data = "";
-  Data = "null";
-#ifdef MCP9808_1_active    
-  MCP9808_1.shutdown_wake(0);
-  Data = MCP9808_1.readTempC();
-  delay(250);
-  MCP9808_1.shutdown_wake(1);
-#endif 
-//  Data = MCP9808_1_TEMP_GetData();
-  Text = "TEMP4=" + Data;
-  if(Data == "null")
-  {
-//    Text = "";
-  }
-#ifdef Serial_on
-    Serial.println(Text);
-#endif
-  return Text;
-}
-
-// Temperatur Zimmer Kai sehr genau
-String MCP9808_2_TEMP_handle(String Label) {
-  String Text = "";
-  String Data = "";
-  Data = "null";
-#ifdef MCP9808_2_TEMP    
-  MCP9808_2.shutdown_wake(0);
-  Data = MCP9808_2.readTempC();
-  delay(250);
-  MCP9808_2.shutdown_wake(1);
-#endif 
-//  Data = MCP9808_2_TEMP_GetData();
-  Text = Label + "=" + Data;
-  if(Data == "null")
-  {
-//    Text = "";
-  }
-#ifdef Serial_on
-    Serial.println(Text);
-#endif
-  return Text;
-}
-*/
