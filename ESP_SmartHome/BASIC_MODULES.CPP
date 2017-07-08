@@ -178,7 +178,7 @@ String Sensor_Text() {
   Serial.println(Text);
 #endif
 #endif
-/*
+
 #ifdef Rollo_2_active
   Data = Rollo_2_HTML_GetData();
   Text = Rollo_2_HTML_text_long + Data + Rollo_2_HTML_text_unit;
@@ -187,7 +187,7 @@ String Sensor_Text() {
   Serial.println(Text);
 #endif
 #endif
-*/
+
 #ifdef BH1750_1_active
   Data = BH1750_1_LUX_GetData();
   Text = BH1750_1_LUX_text_long + Data + BH1750_1_LUX_text_unit;
