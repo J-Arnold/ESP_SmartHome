@@ -33,7 +33,7 @@ String INA219_1_shuntvoltage_GetData(void)
 {
 #ifdef INA219_1_active
   String Text = "";
- Text = INA219_1.getShuntVoltage_mV();
+  Text = INA219_1.getShuntVoltage_mV();
   return Text;
 #else
   return "null";
@@ -44,7 +44,7 @@ String INA219_1_busvoltage_GetData(void)
 {
 #ifdef INA219_1_active
   String Text = "";
- Text = INA219_1.getBusVoltage_V();
+  Text = INA219_1.getBusVoltage_V();
   return Text;
 #else
   return "null";
@@ -55,7 +55,7 @@ String INA219_1_current_mA_GetData(void)
 {
 #ifdef INA219_1_active
   String Text = "";
- Text = INA219_1.getCurrent_mA();
+  Text = INA219_1.getCurrent_mA();
   return Text;
 #else
   return "null";
@@ -66,7 +66,30 @@ String INA219_1_loadvoltage_GetData(void)
 {
 #ifdef INA219_1_active
   String Text = "";
- Text = INA219_1.getBusVoltage_V() + (INA219_1.getShuntVoltage_mV() / 1000);
+  Text = INA219_1.getBusVoltage_V() + (INA219_1.getShuntVoltage_mV() / 1000);
+  return Text;
+#else
+  return "null";
+#endif
+}
+
+String INA219_1_watts_GetData(void)
+{
+#ifdef INA219_1_active
+  String Text = "";
+  Text = (INA219_1.getBusVoltage_V() + (INA219_1.getShuntVoltage_mV() / 1000)) * INA219_1.getCurrent_mA();
+  return Text;
+#else
+  return "null";
+#endif
+}
+
+String INA219_1_energy_GetData(void)
+{
+#ifdef INA219_1_active
+  String Text = "";
+  float Wert = ((INA219_1.getBusVoltage_V() + (INA219_1.getShuntVoltage_mV() / 1000)) * INA219_1.getCurrent_mA()) / 3600;
+  Text = Wert;
   return Text;
 #else
   return "null";
@@ -113,6 +136,30 @@ String INA219_1_loadvoltage_handle(String Label) {
   String Text = "";
   String Data = "";
   Data = INA219_1_loadvoltage_GetData();
+  Text = Label + "=" + Data;
+  if(Data == "null")
+  {
+//    Text = "";
+  }
+  return Text;
+}
+
+String INA219_1_watts_handle(String Label) {
+  String Text = "";
+  String Data = "";
+  Data = INA219_1_watts_GetData();
+  Text = Label + "=" + Data;
+  if(Data == "null")
+  {
+//    Text = "";
+  }
+  return Text;
+}
+
+String INA219_1_energy_handle(String Label) {
+  String Text = "";
+  String Data = "";
+  Data = INA219_1_energy_GetData();
   Text = Label + "=" + Data;
   if(Data == "null")
   {

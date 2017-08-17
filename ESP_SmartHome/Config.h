@@ -1,9 +1,11 @@
-#ifdef ESP_SmartHome_All
+#ifdef ESP_Haus_All
 char wiFiHostname[ ] = "ESP_Haus_All";
-IPAddress ip(192,168,100,199);
+IPAddress ip(192,168,1,1);
 #define BH1750_1_active
 #define BME280_1_active
 #define BME280_2_active
+#define DHT11_1_active
+#define DHT11_2_active
 #define DS18B20_1_active
 #define DS18B20_2_active
 #define INA219_1_active
@@ -18,9 +20,14 @@ IPAddress ip(192,168,100,199);
 #define UPTIME_text "UPTIME"
 #define UPTIME_text_long "UPTIME = "
 #define UPTIME_text_unit ""
+#define Next_Reset_text "Next_Reset"
+#define Next_Reset_text_long "Next_Reset = "
+#define Next_Reset_text_unit ""
 #define vdd33_text "vdd33"
 #define vdd33_text_long "vdd33 = "
 #define vdd33_text_unit "mV"
+#define Version_text "Version"
+#define Version_text_long "Version = "
 #define WiFi_RSSI_text "RSSI"
 #define WiFi_RSSI_text_long "RSSI = "
 #define WiFi_RSSI_text_unit "DB"
@@ -51,6 +58,18 @@ IPAddress ip(192,168,100,199);
 #define BME280_2_TEMP_text "BME280_2_TEMP"
 #define BME280_2_TEMP_text_long "BME280_2_TEMP = "
 #define BME280_2_TEMP_text_unit "&deg;C"
+#define DHT11_1_HYDRO_text "DHT11_1_HYDRO" 
+#define DHT11_1_HYDRO_text_long "DHT11_1_HYDRO = " 
+#define DHT11_1_HYDRO_text_unit "%" 
+#define DHT11_1_TEMP_text "DHT11_1_TEMP"
+#define DHT11_1_TEMP_text_long "DHT11_1_TEMP = "
+#define DHT11_1_TEMP_text_unit "&deg;C"
+#define DHT11_2_HYDRO_text "DHT11_2_HYDRO" 
+#define DHT11_2_HYDRO_text_long "DHT11_2_HYDRO = " 
+#define DHT11_2_HYDRO_text_unit "%" 
+#define DHT11_2_TEMP_text "DHT11_2_TEMP"
+#define DHT11_2_TEMP_text_long "DHT11_2_TEMP = "
+#define DHT11_2_TEMP_text_unit "&deg;C"
 #define DS18B20_1_TEMP_text "DS18B20_1_TEMP"
 #define DS18B20_1_TEMP_text_long "DS18B20_1_TEMP = "
 #define DS18B20_1_TEMP_text_unit "&deg;C"
@@ -69,6 +88,12 @@ IPAddress ip(192,168,100,199);
 #define INA219_1_shuntvoltage_text "INA219_1_shuntvoltage"
 #define INA219_1_shuntvoltage_text_long "INA219_1_shuntvoltage = "
 #define INA219_1_shuntvoltage_text_unit "mV"
+#define INA219_1_watts_text "INA219_1_watts"
+#define INA219_1_watts_text_long "INA219_1_watts = "
+#define INA219_1_watts_text_unit "mW"
+#define INA219_1_energy_text "INA219_1_energy"
+#define INA219_1_energy_text_long "INA219_1_energy = "
+#define INA219_1_energy_text_unit "mWh"
 #define MCP9808_1_TEMP_text "MCP9808_1_TEMP"
 #define MCP9808_1_TEMP_text_long "MCP9808_1_TEMP = "
 #define MCP9808_1_TEMP_text_unit "&deg;C"
@@ -126,23 +151,28 @@ IPAddress ip(192,168,100,199);
 #define VEML6070_1_UV_text_unit "UV"
 #endif
 
-#ifdef ESP_SmartHome_None
+#ifdef ESP_Haus_None
 char wiFiHostname[ ] = "ESP_Haus_None";
-IPAddress ip(192,168,100,199);
+IPAddress ip(192,168,1,1);
 #define UPTIME_text "UPTIME"
 #define UPTIME_text_long "UPTIME = "
 #define UPTIME_text_unit ""
+#define Next_Reset_text "Next_Reset"
+#define Next_Reset_text_long "Next_Reset = "
+#define Next_Reset_text_unit ""
 #define vdd33_text "vdd33"
 #define vdd33_text_long "vdd33 = "
 #define vdd33_text_unit "mV"
+#define Version_text "Version"
+#define Version_text_long "Version = "
 #define WiFi_RSSI_text "RSSI"
 #define WiFi_RSSI_text_long "RSSI = "
 #define WiFi_RSSI_text_unit "DB"
 #endif
 
 #ifdef ESP_SmartHome_Demo1
-char wiFiHostname[ ] = "ESP_Haus_Garten1";
-IPAddress ip(192,168,100,201);
+char wiFiHostname[ ] = "ESP_SmartHome_Demo1";
+IPAddress ip(192,168,1,1);
 #define BH1750_1_active
 #define BME280_1_active
 //#define DS18B20_1_active
@@ -153,9 +183,14 @@ IPAddress ip(192,168,100,201);
 #define UPTIME_text "UPTIME"
 #define UPTIME_text_long "UPTIME = "
 #define UPTIME_text_unit ""
+#define Next_Reset_text "Next_Reset"
+#define Next_Reset_text_long "Next_Reset = "
+#define Next_Reset_text_unit ""
 #define vdd33_text "vdd33"
 #define vdd33_text_long "vdd33 = "
 #define vdd33_text_unit "mV"
+#define Version_text "Version"
+#define Version_text_long "Version = "
 #define WiFi_RSSI_text "RSSI"
 #define WiFi_RSSI_text_long "RSSI = "
 #define WiFi_RSSI_text_unit "DB"

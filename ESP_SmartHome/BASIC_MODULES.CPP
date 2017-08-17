@@ -42,7 +42,15 @@ String WiFi_RSSI_handle(String Label){
   Data = WiFi.RSSI();
   Text = Label + "=" + Data;
   return Text;
-} 
+}
+
+String Version_handle(String Label){
+  String Text = "";
+  String Data = "";
+  Data = VERSION;
+  Text = Label + "=" + Data;
+  return Text;
+}
 
 String vdd33_handle(String Label){
   String Text = "";
@@ -97,6 +105,7 @@ String Root_Text() {
 #ifdef Serial_on
   Serial.println(Text);
 #endif
+
   return(Root_Return_Text);
 }
 
@@ -104,10 +113,18 @@ String System_Text() {
   String Text = "";
   String Data = "";
   String System_Return_Text;
-  
-//ESP.getResetReason() returns String containing the last reset resaon in human readable format.  
-  Data = ESP.getResetReason();
-  Text = "getResetReason = " + Data;
+
+#ifdef Watchdog_active
+  Data = Watchdog_Next_Reset_GetData();
+  Text = "Next_Reset = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+#endif
+
+  Data = ESP.getResetInfo();
+  Text = "getResetInfo = " + Data;
   System_Return_Text = System_Return_Text + Text + "</BR>";
 #ifdef Serial_on
   Serial.println(Text);
@@ -128,11 +145,54 @@ String System_Text() {
 #ifdef Serial_on
   Serial.println(Text);
 #endif
+ 
+  Data = ESP.getSdkVersion();
+  Text = "getSdkVersion = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getCoreVersion();
+  Text = "getCoreVersion = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getBootVersion();
+  Text = "getBootVersion = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getBootMode();
+  Text = "getBootMode = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getCpuFreqMHz();
+  Text = "getCpuFreqMHz = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
 
 //Several APIs may be used to get flash chip info:
 //ESP.getFlashChipId() returns the flash chip ID as a 32-bit integer.
   Data = ESP.getFlashChipId();
   Text = "getFlashChipId = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+//gets the actual chip size based on the flash id
+  Data = ESP.getFlashChipRealSize();
+  Text = "getFlashChipRealSize = " + Data;
   System_Return_Text = System_Return_Text + Text + "</BR>";
 #ifdef Serial_on
   Serial.println(Text);
@@ -154,9 +214,58 @@ String System_Text() {
   Serial.println(Text);
 #endif
 
+  Data = ESP.getFlashChipMode();
+  Text = "getFlashChipMode = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getFlashChipSizeByChipId();
+  Text = "getFlashChipSizeByChipId = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getSketchSize();
+  Text = "getSketchSize = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getSketchMD5();
+  Text = "getSketchMD5 = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = ESP.getFreeSketchSpace();
+  Text = "getFreeSketchSpace = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
 //ESP.getCycleCount() returns the cpu instruction cycle count since start as an unsigned 32-bit. This is useful for accurate timing of very short actions like bit banging.
   Data = ESP.getCycleCount();
   Text = "getCycleCount = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = millis();
+  Text = "millis = " + Data;
+  System_Return_Text = System_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = VERSION;
+  Text = "Version = " + Data;
   System_Return_Text = System_Return_Text + Text + "</BR>";
 #ifdef Serial_on
   Serial.println(Text);
@@ -257,6 +366,38 @@ String Sensor_Text() {
 #endif
 #endif
 
+#ifdef DHT11_1_active
+  Data = DHT11_1_HYDRO_GetData();
+  Text = DHT11_1_HYDRO_text_long + Data + DHT11_1_HYDRO_text_unit;
+  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = DHT11_1_TEMP_GetData();
+  Text = DHT11_1_TEMP_text_long + Data + DHT11_1_TEMP_text_unit;
+  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+#endif
+
+#ifdef DHT11_2_active
+  Data = DHT11_2_HYDRO_GetData();
+  Text = DHT11_2_HYDRO_text_long + Data + DHT11_2_HYDRO_text_unit;
+  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = DHT11_2_TEMP_GetData();
+  Text = DHT11_2_TEMP_text_long + Data + DHT11_2_TEMP_text_unit;
+  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+#endif
+
 #ifdef DS18B20_1_active
   Data = DS18B20_1_TEMP_GetData();
   Text = DS18B20_1_TEMP_text_long + Data + DS18B20_1_TEMP_text_unit;
@@ -303,6 +444,20 @@ String Sensor_Text() {
 #ifdef Serial_on
   Serial.println(Text);
 #endif
+
+  Data = INA219_1_watts_GetData();
+  Text = INA219_1_watts_text_long + Data + INA219_1_watts_text_unit;
+  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
+
+  Data = INA219_1_energy_GetData();
+  Text = INA219_1_energy_text_long + Data + INA219_1_energy_text_unit;
+  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
+#ifdef Serial_on
+  Serial.println(Text);
+#endif
 #endif
 
 #ifdef MCP9808_1_active 
@@ -312,33 +467,10 @@ String Sensor_Text() {
 #ifdef Serial_on
   Serial.println(Text);
 #endif
-
-  MCP9808_1.shutdown_wake(0);
-  Data = MCP9808_1.readTempC();
-  delay(250);
-  MCP9808_1.shutdown_wake(1);
-  //Data = MCP9808_1_TEMP_GetData();
-  Text = MCP9808_1_TEMP_text_long + Data + MCP9808_1_TEMP_text_unit;
-  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
-
-#ifdef Serial_on
-  Serial.println(Text);
-#endif
 #endif
 
 #ifdef MCP9808_2_active  
   Data = MCP9808_2_TEMP_GetData();
-  Text = MCP9808_2_TEMP_text_long + Data + MCP9808_2_TEMP_text_unit;
-  Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
-#ifdef Serial_on
-  Serial.println(Text);
-#endif
-  
-  MCP9808_2.shutdown_wake(0);
-  Data = MCP9808_2.readTempC();
-  delay(250);
-  MCP9808_2.shutdown_wake(1);
-//  Data = MCP9808_2_TEMP_GetData();
   Text = MCP9808_2_TEMP_text_long + Data + MCP9808_2_TEMP_text_unit;
   Sensor_Return_Text = Sensor_Return_Text + Text + "</BR>";
 #ifdef Serial_on
@@ -445,8 +577,9 @@ String Sensor_Text() {
 #endif
 #endif
 
-  Sensor_Return_Text = Sensor_Return_Text + "<BR><BR><a href=\"http://" + WiFi.localIP() + "/\"><button>Back</button></a>";
-
+  Sensor_Return_Text = Sensor_Return_Text + "<BR><BR><a href=\"http://";
+  Sensor_Return_Text = Sensor_Return_Text + WiFi.localIP().toString();
+  Sensor_Return_Text = Sensor_Return_Text + "/\"><button>Back</button></a>";
   return(Sensor_Return_Text);
 }
 

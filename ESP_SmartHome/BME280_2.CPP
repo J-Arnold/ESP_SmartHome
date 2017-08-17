@@ -12,7 +12,7 @@
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-Adafruit_BME280 bme2; // I2C
+Adafruit_BME280 BME280_2; // I2C
 //Adafruit_BME280 bme(BME_CS); // hardware SPI
 //Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
 #endif
@@ -21,9 +21,9 @@ void BME280_2_INIT(void)
 {
 #ifdef BME280_2_active
   Serial.print("BME280_2 Test......");
-//I2C device found at address 0x76  ! bme280 1 Jens
-//I2C device found at address 0x77  ! bme280 2 Kai
-  if (!bme2.begin(0x77)) {
+//I2C device found at address 0x76  ! bme280 1 
+//I2C device found at address 0x77  ! bme280 2 
+  if (!BME280_2.begin(0x77)) {
     Serial.println("Fail");
   } else {
     Serial.println("OK");
@@ -35,7 +35,7 @@ String BME280_2_TEMP_GetData(void)
 {
 #ifdef BME280_2_active
   String Text = "";
- Text = bme2.readTemperature();
+ Text = BME280_2.readTemperature();
   return Text;
 #else
   return "null";
@@ -47,7 +47,7 @@ String BME280_2_TEMP_GetData_fahrenheit(void)
 #ifdef BME280_2_active
   float C;
   float F;
-  C = bme2.readTemperature();
+  C = BME280_2.readTemperature();
   F = C * 9.0 / 5.0 + 32;
   return String(F);
 #else
@@ -60,7 +60,7 @@ String BME280_2_PRESS_GetData(void)
 #ifdef BME280_2_active
   float C;
   String Text = "";
-  C = bme2.readPressure() / 100.0F;
+  C = BME280_2.readPressure() / 100.0F;
   Text = C;
   return Text;
 #else
@@ -72,7 +72,7 @@ String BME280_2_HYDRO_GetData(void)
 {
 #ifdef BME280_2_active
   String Text = "";
-  Text = bme2.readHumidity();
+  Text = BME280_2.readHumidity();
   return Text;
 #else
   return "null";
@@ -83,7 +83,7 @@ String BME280_2_ALT_GetData(void)
 {
 #ifdef BME280_2_active
   String Text = "";
-  Text = bme2.readAltitude(SEALEVELPRESSURE_HPA);
+  Text = BME280_2.readAltitude(SEALEVELPRESSURE_HPA);
   return Text;
 #else
   return "null";

@@ -1,8 +1,17 @@
-//#define ESP_SmartHome_Demo1
-#define ESP_SmartHome_All
-//#define ESP_SmartHome_None
+#define ESP_SmartHome_Demo1
+//#define ESP_Haus_All
+//#define ESP_Haus_None
 
-#define VERSION "V1.0.0 2017-07-05"
+#define VERSION "V1.0.1 2017-08-17"
+// V1.0.0 2017-07-05
+// First realease to GitHub
+//
+// V1.0.1 2017-08-17
+// Bug fixes
+// rework of codeing
+// Seperating Watchdog Handling
+//
+
 // GPIO 00
 // GPIO 02 LED
 // GPIO 04 I2C SDA
@@ -22,7 +31,7 @@
 //I2C device found at address 0x38  ! VEML6070
 //I2C device found at address 0x39  ! VEML6070
 //I2C device found at address 0x40  ! INA219
-//I2C device found at address 0x3C  ! OLED
+//I2C device found at address 0x3C  ! OLED SSD1306
 //I2C device found at address 0x76  ! bme280 1
 //I2C device found at address 0x77  ! bme280 2
 //I2C device found at address 0x1E  ! HMC5883L
@@ -43,13 +52,21 @@
 // - TSL2561           - https://github.com/adafruit/Adafruit_TSL2561
 // - VEML6070          - https://github.com/adafruit/Adafruit_VEML6070
 
-#include <Wire.h>
+#include "ESP_SmartHome.h"
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
-#include <Ticker.h>
 #include "Config.h"
 
+const char* ssid = "WIFI_SSID";
+const char* password = "WIFI_PASSWORD";
+IPAddress dns(192,168,1,254);  
+IPAddress gateway(192,168,1,254); 
+IPAddress subnet(255,255,255,0);
+ESP8266WebServer server(80);
+
+
 #define Serial_on
+#define Watchdog_active
 // Use server.send(200, "text/plain"," to send Plain Text HTML are shown");
 String WebSideType = WebSideType;
 #define WebSideStart "<!DOCTYPE HTML><html><body> "
@@ -65,6 +82,12 @@ String WebSideType = WebSideType;
 #endif
 #ifdef BME280_2_active
 #include "BME280_2.CPP"
+#endif
+#ifdef DHT11_1_active
+#include "DHT11_1.CPP"
+#endif
+#ifdef DHT11_2_active
+#include "DHT11_2.CPP"
 #endif
 #ifdef DS18B20_1_active
 #include "DS18B20_1.CPP"
@@ -99,48 +122,10 @@ String WebSideType = WebSideType;
 #ifdef VEML6070_1_active
 #include "VEML6070_1.CPP"
 #endif
-
+#include "Watchdog.CPP"
 #include "BASIC_MODULES.CPP"
 
-const char* ssid = "WIFI_SSID";
-const char* password = "WIFI_PASSWORD";
-IPAddress dns(192,168,100,254);  
-IPAddress gateway(192,168,100,254); 
-IPAddress subnet(255,255,255,0);
-ESP8266WebServer server(80);
-
 #define GPIO_02_LED 2
-
-Ticker Reset;
-
-int NoOutput = 0;
-
-void  Server_Header() {
-//  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-//  server.sendHeader("Pragma", "no-cache");
-//  server.sendHeader("Expires", "-1");
-//  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-}
-
-void  Reset_System() {
-#ifdef Serial_on
-  String Text = "";
-  String Data = "";
-  Data = milli2time(millis());
-  Text = "watchdog Reset Timestamp = " + Data;
-  Serial.println(Text);
-  Serial.println("watchdog Reset");
-#endif
-  ESP.restart();
-}
-
-void  Reset_Reset() {
-  Reset.detach();
-  Reset.once(300, Reset_System); //reset ESP after 5 Minutes no action from Web
-#ifdef Serial_on
-  Serial.println("Reset watchdog");
-#endif
-}
 
 void setup() {
   pinMode(GPIO_02_LED, OUTPUT);
@@ -200,6 +185,12 @@ void setup() {
 #ifdef BME280_2_active
   BME280_2_INIT();
 #endif
+#ifdef DHT11_1_active
+  DHT11_1_INIT();
+#endif
+#ifdef DHT11_2_active
+  DHT11_2_INIT();
+#endif
 #ifdef DS18B20_1_active
   DS18B20_1_INIT();
 #endif
@@ -242,7 +233,15 @@ void setup() {
 
   digitalWrite(GPIO_02_LED, HIGH);
 
-  Reset.once(300, Reset_System); //reset ESP after 5 Minutes no action from Web
+  Reset_Watchdog();
+
+}
+
+void  Server_Header() {
+//  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+//  server.sendHeader("Pragma", "no-cache");
+//  server.sendHeader("Expires", "-1");
+//  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
 }
  
 void loop() {
@@ -256,8 +255,6 @@ void Root_handle() {
   String Data = "";
   String Text = "";
   
-//  WebSideArgumentRead = "";
-//  WebSideArgumentAction = "";
   WebSideArgumentRead = server.arg("read");
   WebSideArgumentAction = server.arg("action");
 #ifdef Serial_on
@@ -273,21 +270,30 @@ void Root_handle() {
 #endif
   if (WebSideArgumentRead == WiFi_RSSI_text) Text = WiFi_RSSI_handle(WiFi_RSSI_text);
   else if (WebSideArgumentRead == vdd33_text) Text = vdd33_handle(vdd33_text);
+  else if (WebSideArgumentRead == Version_text) Text = Version_handle(Version_text);
   else if (WebSideArgumentRead == UPTIME_text) Text = UPTIME_handle(UPTIME_text);
 #ifdef BH1750_1_active
   else if (WebSideArgumentRead == BH1750_1_LUX_text) Text = BH1750_1_LUX_handle(BH1750_1_LUX_text);
 #endif
 #ifdef BME280_1_active
-  else if (WebSideArgumentRead == BME280_1_ALT_text) Text = BME280_1_TEMP_handle(BME280_1_ALT_text);
+  else if (WebSideArgumentRead == BME280_1_ALT_text) Text = BME280_1_ALT_handle(BME280_1_ALT_text);
   else if (WebSideArgumentRead == BME280_1_HYDRO_text) Text = BME280_1_HYDRO_handle(BME280_1_HYDRO_text); 
   else if (WebSideArgumentRead == BME280_1_PRESS_text) Text = BME280_1_PRESS_handle(BME280_1_PRESS_text);
-  else if (WebSideArgumentRead == BME280_1_TEMP_text) Text = BME280_1_ALT_handle(BME280_1_TEMP_text);
+  else if (WebSideArgumentRead == BME280_1_TEMP_text) Text = BME280_1_TEMP_handle(BME280_1_TEMP_text);
 #endif
 #ifdef BME280_2_active
-  else if (WebSideArgumentRead == BME280_2_ALT_text) Text = BME280_1_TEMP_handle(BME280_2_ALT_text);
+  else if (WebSideArgumentRead == BME280_2_ALT_text) Text = BME280_1_ALT_handle(BME280_2_ALT_text);
   else if (WebSideArgumentRead == BME280_2_HYDRO_text) Text = BME280_1_HYDRO_handle(BME280_2_HYDRO_text); 
   else if (WebSideArgumentRead == BME280_2_PRESS_text) Text = BME280_1_PRESS_handle(BME280_2_PRESS_text);
-  else if (WebSideArgumentRead == BME280_2_TEMP_text) Text = BME280_1_ALT_handle(BME280_2_TEMP_text);
+  else if (WebSideArgumentRead == BME280_2_TEMP_text) Text = BME280_1_TEMP_handle(BME280_2_TEMP_text);
+#endif
+#ifdef DHT11_1_active
+  else if (WebSideArgumentRead == DHT11_1_HYDRO_text) Text = DHT11_1_HYDRO_handle(DHT11_1_HYDRO_text); 
+  else if (WebSideArgumentRead == DHT11_1_TEMP_text) Text = DHT11_1_TEMP_handle(DHT11_1_TEMP_text);
+#endif
+#ifdef DHT11_2_active
+  else if (WebSideArgumentRead == DHT11_2_HYDRO_text) Text = DHT11_2_HYDRO_handle(DHT11_2_HYDRO_text); 
+  else if (WebSideArgumentRead == DHT11_2_TEMP_text) Text = DHT11_2_TEMP_handle(DHT11_2_TEMP_text);
 #endif
 #ifdef DS18B20_1_active
   else if (WebSideArgumentRead == DS18B20_1_TEMP_text) Text = DS18B20_1_TEMP_handle(DS18B20_1_TEMP_text);
@@ -296,10 +302,12 @@ void Root_handle() {
   else if (WebSideArgumentRead == DS18B20_2_TEMP_text) Text = DS18B20_2_TEMP_handle(DS18B20_2_TEMP_text);
 #endif
 #ifdef INA219_1_active
-  else if (WebSideArgumentAction == INA219_1_shuntvoltage_text) Text = INA219_1_shuntvoltage_handle(INA219_1_shuntvoltage_text);
-  else if (WebSideArgumentAction == INA219_1_busvoltage_text) Text = INA219_1_busvoltage_handle(INA219_1_busvoltage_text);
-  else if (WebSideArgumentAction == INA219_1_current_mA_text) Text = INA219_1_current_mA_handle(INA219_1_current_mA_text);
-  else if (WebSideArgumentAction == INA219_1_loadvoltage_text) Text = INA219_1_loadvoltage_handle(INA219_1_loadvoltage_text);
+  else if (WebSideArgumentRead == INA219_1_shuntvoltage_text) Text = INA219_1_shuntvoltage_handle(INA219_1_shuntvoltage_text);
+  else if (WebSideArgumentRead == INA219_1_busvoltage_text) Text = INA219_1_busvoltage_handle(INA219_1_busvoltage_text);
+  else if (WebSideArgumentRead == INA219_1_current_mA_text) Text = INA219_1_current_mA_handle(INA219_1_current_mA_text);
+  else if (WebSideArgumentRead == INA219_1_loadvoltage_text) Text = INA219_1_loadvoltage_handle(INA219_1_loadvoltage_text);
+  else if (WebSideArgumentRead == INA219_1_watts_text) Text = INA219_1_watts_handle(INA219_1_watts_text);
+  else if (WebSideArgumentRead == INA219_1_energy_text) Text = INA219_1_energy_handle(INA219_1_energy_text);
 #endif
 #ifdef MCP9808_1_active
   else if (WebSideArgumentRead == MCP9808_1_TEMP_text) Text = MCP9808_1_TEMP_handle(MCP9808_1_TEMP_text);
@@ -328,9 +336,9 @@ void Root_handle() {
   else if (WebSideArgumentAction == Rollo_2_Runter_text) Text = Rollo_2_Runter_handle(Rollo_2_Runter_text);
 #endif
 #ifdef SI1145_1_active
-  else if (WebSideArgumentAction == SI1145_1_IR_text) Text = SI1145_1_IR_handle(SI1145_1_IR_text);
-  else if (WebSideArgumentAction == SI1145_1_UV_text) Text = SI1145_1_UV_handle(SI1145_1_UV_text);
-  else if (WebSideArgumentAction == SI1145_1_VISIBLE_text) Text = SI1145_1_VISIBLE_handle(SI1145_1_VISIBLE_text);
+  else if (WebSideArgumentRead == SI1145_1_IR_text) Text = SI1145_1_IR_handle(SI1145_1_IR_text);
+  else if (WebSideArgumentRead == SI1145_1_UV_text) Text = SI1145_1_UV_handle(SI1145_1_UV_text);
+  else if (WebSideArgumentRead == SI1145_1_VISIBLE_text) Text = SI1145_1_VISIBLE_handle(SI1145_1_VISIBLE_text);
 #endif
 #ifdef TSL2561_1_active
   else if (WebSideArgumentRead == TSL2561_1_LUX_text) Text = TSL2561_1_handle(TSL2561_1_LUX_text);
@@ -360,7 +368,7 @@ void Root_handle() {
   Server_Header();
   server.send(200, WebSideType, WebSide);
   server.client().stop();
-  Reset_Reset();
+  Reset_Watchdog();
 }
 
 void Info_handle() {
@@ -379,7 +387,7 @@ void Info_handle() {
   Server_Header();
   server.send(200, WebSideType, WebSide);
   server.client().stop();
-  Reset_Reset();
+  Reset_Watchdog();
 }
 
 void Ping_handle() {
@@ -397,7 +405,7 @@ void Ping_handle() {
   Server_Header();
   server.send(200, WebSideType, WebSide);
   server.client().stop();
-  Reset_Reset();
+  Reset_Watchdog();
 }
 
 void Time_handle() {
@@ -418,7 +426,7 @@ void Time_handle() {
   Server_Header();
   server.send(200, WebSideType, WebSide);
   server.client().stop();
-  Reset_Reset();
+  Reset_Watchdog();
 }
 
 void handleNotFound(){
