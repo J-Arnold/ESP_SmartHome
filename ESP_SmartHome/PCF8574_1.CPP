@@ -25,7 +25,7 @@ void PCF8574_1_INIT(void)
 
 String PCF8574_1_GetData(int pin)
 {
-#ifdef PCF8574_active
+#ifdef PCF8574_1_active
   String Text = "";
   Text = PCF8574_1.digitalRead(pin-1);
   return Text;

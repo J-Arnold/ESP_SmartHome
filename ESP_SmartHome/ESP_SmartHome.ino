@@ -326,9 +326,9 @@ void Root_handle() {
   else if (WebSideArgumentRead == PCF8574_1_8_text) Text = PCF8574_1_handle(8, PCF8574_1_8_text);
 #endif
 #ifdef Rollo_1_active
-  else if (WebSideArgumentAction == Rollo_1_Hoch_text) Text = Rollo_2_Hoch_handle(Rollo_1_Hoch_text);
-  else if (WebSideArgumentAction == Rollo_1_Stop_text) Text = Rollo_2_Stop_handle(Rollo_1_Stop_text);
-  else if (WebSideArgumentAction == Rollo_1_Runter_text) Text = Rollo_2_Runter_handle(Rollo_1_Runter_text);
+  else if (WebSideArgumentAction == Rollo_1_Hoch_text) Text = Rollo_1_Hoch_handle(Rollo_1_Hoch_text);
+  else if (WebSideArgumentAction == Rollo_1_Stop_text) Text = Rollo_1_Stop_handle(Rollo_1_Stop_text);
+  else if (WebSideArgumentAction == Rollo_1_Runter_text) Text = Rollo_1_Runter_handle(Rollo_1_Runter_text);
 #endif
 #ifdef Rollo_2_active
   else if (WebSideArgumentAction == Rollo_2_Hoch_text) Text = Rollo_2_Hoch_handle(Rollo_2_Hoch_text);
